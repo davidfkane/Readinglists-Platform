@@ -241,20 +241,20 @@ $(document).ready(function()
 	$('body').on('click', ".transferdetails", function(){	
 		// moves stuff across to the edit form
 		// take each form field and assign the new value to it.
-		$('#book_title').val($(this).parent().parent().find('span.opac_resultset_detail_title').html());
+		$('#book_title').val($(this).parent().parent().find('span.opac_resultset_detail_title').text());
 		$('#addAuthorFormPanel').html();
-		$('#addAuthorFormPanel').html("<input class=\"form-control\" style=\"border: none;\" name=\"book_author\" type=\"text\" id=\"book_author\" value=\""+$(this).parent().parent().find('span.opac_resultset_detail_author').html()+"\" size=\"45\" />");
+		$('#addAuthorFormPanel').html("<input class=\"form-control\" style=\"border: none;\" name=\"book_author\" type=\"text\" id=\"book_author\" value=\""+$(this).parent().parent().find('span.opac_resultset_detail_author').text()+"\" size=\"45\" />");
 		
-		$('#book_year').val($(this).parent().parent().find('span.opac_resultset_detail_pubdate').html());
-		$('#book_publisher').val($(this).parent().parent().find('span.opac_resultset_detail_publisher').html());
-		$('#book_place').val($(this).parent().parent().find('span.opac_resultset_detail_publoc').html());
-		$('#book_isbn').val($(this).parent().parent().find('span.opac_resultset_detail_isbn').html());
-		$('#book_url').val($(this).parent().parent().find('span.opac_resultset_detail_url a').html());
-		$('#book_libraryid').val($(this).parent().parent().find('span.opac_resultset_detail_recordid a').html());
+		$('#book_year').val($(this).parent().parent().find('span.opac_resultset_detail_pubdate').text());
+		$('#book_publisher').val($(this).parent().parent().find('span.opac_resultset_detail_publisher').text());
+		$('#book_place').val($(this).parent().parent().find('span.opac_resultset_detail_publoc').text());
+		$('#book_isbn').val($(this).parent().parent().find('span.opac_resultset_detail_isbn').text());
+		$('#book_url').val($(this).parent().parent().find('span.opac_resultset_detail_url a').text());
+		$('#book_libraryid').val($(this).parent().parent().find('span.opac_resultset_detail_recordid a').text());
 		
 		//hidden fields.
-		$('#book_mattype').val($(this).parent().parent().find('span.opac_resultset_detail_mattytpe').html());
-		$('#book_bcode3').val($(this).parent().parent().find('span.opac_resultset_detail_bcode3').html());
+		$('#book_mattype').val($(this).parent().parent().find('span.opac_resultset_detail_mattytpe').text());
+		$('#book_bcode3').val($(this).parent().parent().find('span.opac_resultset_detail_bcode3').text());
 		
 		$(this).parent().parent().hide('slow');
 		
@@ -293,7 +293,17 @@ $(document).ready(function()
 	}
 	/* SEARCH CATALOGUE FORM FUNCTIONS FOR SECONDARY SEARCHES */
 	$('body').on('click', "#searchFormInputDropdown li", function(){
-		showSearchCat($('#searchFormInput').val(), $(this).attr('value'));
+		if($(this).attr('value') != 'isbndb'){
+			//confirm("Search Term: " + $('#searchFormInput').val());
+			searchterm = $('#searchFormInput').val();
+		}else{
+		//	searchterm = $('#bookISBN').val();
+			//confirm("Search ISBN Term: " + $('#bookISBN').val());
+			searchterm = $('#searchFormInput').val();
+		}
+		//alert("SEARCH TERM: " + searchterm + "\nDATABASE: " + $(this).attr('value')); 
+		showSearchCat(searchterm, $(this).attr('value'));
+		
 	});
 	$('body').on('keypress', '#searchFormInput', function(e) {
 		if(e.keyCode == 13) {
@@ -402,13 +412,16 @@ $(document).ready(function()
 	
 	/* SEARCH CATALOGUE FUNCTION */
 	function showSearchCat(searchterm, source){	
+		//alert("00 source: " + source + "\nrefined searchterm: " + searchterm);
 		$("div#showcat").html(pleaseWaitHTML);	
-		//alert("source: " + source + "\nsearchterm: " + searchterm);
+		//alert("0 source: " + source + "\nrefined searchterm: " + searchterm);
 		searchterm = escape(searchterm.replace(/[^A-Za-z0-9]+/gi, " "));
+		//alert("1 source: " + source + "\nrefined searchterm: " + searchterm);
 		var loadurl = '<?php echo($this->config->item('base_url')); ?>index.php/lists/library/';
+		//alert("2 Loadurl: " + loadurl);
 		title = 'source='+source+'&ti='+searchterm;
 		
-		//alert('searchcat: \t' + loadurl + '\nsearchcat: \t' + title);
+		//alert('3 searchcat: \t' + loadurl + '\nsearchcat: \t' + title);
 		$.ajax
 		({
 			type: "POST", url: loadurl, data: title, cache: false, success: function(html)

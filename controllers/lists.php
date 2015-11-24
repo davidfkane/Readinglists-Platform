@@ -558,6 +558,7 @@ class Lists extends CI_Controller {
 			}
 			//print($action);
 			$data['oldMid'] = $module_id;
+			$this->load->model('Opac');
 			$this->load->model('Books');
 			$this->load->model('Users');
 			//logfile("URL segment: " . $module_id);
@@ -582,6 +583,7 @@ class Lists extends CI_Controller {
 			$data['module_staff'] = $this->Books->getModuleStaff($module_id);
 			$data['module_type'] = $this->Books->getModuleType($module_id);
 			$data['teacheson'] = $this->Users->teachesOn($this->session->userdata('user'), $module_id);
+			$data['typearray'] = $this->Opac->returnTypesArray();
 			
 	
 	

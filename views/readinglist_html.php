@@ -117,49 +117,25 @@ if($resultCount > 0){ // show the table;
 			$title = stripslashes($row['Title']);
 			echo "\t<tr data-title=\"mid=$module_id\"  id=\"row_".$row['bid']."\" >\n";
 			echo "\t\t<td class=\"mattypeIcons\" style=\"white-space: normal\">";
-			$types = array(
-				array('book', 'background-color: #000333;', 'book'),
-				array('journal', 'background-color: #003399;', 'file-text'),
-				array('web', 'background-color: #3664bb;', 'globe'),
-				array('report', 'background-color: #587094;', 'book'),
-				array('audio', 'background-color: #4c6980;', 'headphones'),
-				array('video', 'background-color: #01296e;', 'film'),
-				
-		/*
-		'background:#b58900;color:#002b36;',
-		'background:#cb4b16;color:#002b36;',
-		'background:#dc322f;color:#002b36;',
-		'background:#d33682;color:#002b36;',
-		'background:#6c71c4;color:#002b36;',
-		'background:#268bd2;color:#002b36;',
-		'background:#2aa198;color:#002b36;',
-		'background:#859900;color:#002b36;'
-		*/
-			);
-			
-			echo "<span class=\"listAdminButtons removeFromMobileView btn btn-default\" title=\"".$types[$row['type'] - 1][0]."\" onclick=\"return false;\" style=\"color: white; margin-right: 10px; cursor: default; float: left; border: solid 1px black; padding: 6px; ".$types[$row['type'] - 1][1]." \"><i class=\"fa fa-".$types[$row['type'] - 1][2]."\"></i></span>";
+
+			logfile("ROW_TYPE: " . $row['type_name'], 'BLUE');
+			isset($typearray[strtolower($row['type_name'])])?$typename = strtolower($row['type_name']):$typename = 'unknown';
+			echo "<span class=\"listAdminButtons removeFromMobileView btn btn-default\" title=\"".$typename."\" onclick=\"return false;\" style=\"color: white; margin-right: 10px; cursor: default; float: left; border: solid 1px black; padding: 6px; background-color: " . $typearray[$typename][0]." \"><i class=\"fa fa-".$typearray[$typename][2]."\"></i></span>";
 			
 			
-			//echo "</td>";
-			//echo "\t\t<td class=\"r_title width500px\" id=\"title_".$row['bid'] ."\" style=\"line-height: 120%; white-space: normal\">";
-			if($row['libid'] != ''){
-				echo "<a href=\"".$libraryroot . substr($row['libid'], 0,8) . "~S0\" title=\"\" class=\"truncated\" style=\"text-decoration: none; font-weight: bold; color: #08c\" target=\"_blank\">".$title."</a>\n";
-			}else{
-				echo "<a class=\"truncated\" href=\"#\" style=\"cursor: arrow; text-decoration: none; color: black; font-weight: bold; \">$title</a>\n";
-			}
+			echo "<a class=\"truncated\" href=\"#\" style=\"cursor: arrow; text-decoration: none; color: black; font-weight: bold; \">$title</a>\n";
 			echo "<span style=\"font-weight: 500\">".stripslashes($row['Author'])."</smaller> <em>".stripslashes($row['Publisher']).", [".$row['Year']."]</em>";
 			echo "</td>\n";
 			// START OF THE BUTTONS ROW 
 			echo "<td class=\"\" style=\"padding-left:5px;padding-right:5px; white-space: normal; text-align: center; \"><span class=\"listAdminButtons\">";
 			if(isset($row['url']) && $row['url'] != ''){  /* LINK to URL */ 
-				?><button title="open link in new tab" type="button" style=" vertical-align: middle;" onclick="window.open('<?php echo($row['url']); ?>', '_blank');" class="btn btn-default btn-circle"><i class="fa fa-link"></i></button><?php
+			logfile("THE URL FOR ".$title." IS: " . $row['url']);
+				?><a href="<?php echo($row['url']); ?>" target="_blank"><?php //echo($row['url']); ?></a> <button title="open link in new tab" type="button" style=" vertical-align: middle; background-color: green; color: white; " onclick="window.open('<?php echo($row['url']); ?>', '_blank');" class="btn btn-default btn-circle"><i class="fa fa-link"></i></button><?php
 			}
 			
 			/*  STATUS LOOP */
 			if(($this->session->userdata('authorised') == 'TRUE' && $teacheson == 1) || $this->session->userdata('admin') == 'TRUE'){
-				//echo " <button type=\"button\" title=\"".$row['type']."\" value=\"".$row['bid']."\" style=\" vertical-align: middle; cursor: pointer\" class=\"check_catalogue btn btn-default btn-circle\"><i class=\"fa fa-pencil-square-o\"></i></button>";
 				echo " <button type=\"button\" title=\"click to edit this item\" value=\"".$row['bid'].":".$row['type']."\" style=\" vertical-align: middle; cursor: pointer\" class=\"check_catalogue btn btn-default btn-circle\"><i class=\"fa fa-pencil-square-o\"></i></button>";
-				// &bid="+val+"&mid="+mid
 			}
 			/* END STATUS LOOP */
 			

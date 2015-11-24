@@ -21,16 +21,6 @@ function searchArray($terms){
 		'background:#54b70b;',
 		'background:#b688cf;',
 		'background:#ff4300;'
-		/*
-		'background:#b58900;color:#002b36;',
-		'background:#cb4b16;color:#002b36;',
-		'background:#dc322f;color:#002b36;',
-		'background:#d33682;color:#002b36;',
-		'background:#6c71c4;color:#002b36;',
-		'background:#268bd2;color:#002b36;',
-		'background:#2aa198;color:#002b36;',
-		'background:#859900;color:#002b36;'
-		*/
 	);
 	$searcharray = array();
 	$count = 0;
@@ -90,9 +80,11 @@ function DownloadUrl($Url){
 	return $output;	// print output
 }
 function queryCOPAC($cleaned_searchterm){  
+
 	$resultset = array();
+	logfile("COPAC  - - : \nhttp://copac.ac.uk/search?format=BibTeX&ti=" . urlencode($cleaned_searchterm), "YELLOW");
 	$homepage = file_get_contents('http://copac.ac.uk/search?format=BibTeX&ti=' . urlencode($cleaned_searchterm));
-	//print $homepage;
+	logfile("COPAC  - - : \n$homepage", "cyan");
 	$books = explode("@book", $homepage);
 	$matches  = array('/[ \{\}]+/i', '/[ ,;:\.]+$/', '/^[ ,;:\.]/');
 	//return trim(preg_replace($stopwords, " ", " ".$raw_searchterm." ")); 
@@ -101,8 +93,11 @@ function queryCOPAC($cleaned_searchterm){
 		
 		// make an empty array that is filled with values if available from COPAC
 		// it is certain that there are going to be titles as the search was done on the title field
-		$entry = array('author'=>'','title'=>'','publocation'=>'','publisher'=>'','pubdate'=>'','isbn'=>'','idwitbooks'=>'');
+		$entry = array('author'=>'','title'=>'','publocation'=>'','publisher'=>'','pubdate'=>'','isbn'=>'','idwitbooks'=>'', 'type'=>'book');
 		foreach($lines as $line){
+			if(preg_match('/^@/', $line)){
+					$entry['type'] = trim($line[1]);
+			}
 			if(preg_match('/^title|^address|^publisher|^year|^isbn|^author/', $line)){
 				$line = explode('=', preg_replace($matches, " ", $line));
 				//$line = trim(preg_replace($matches, " ", $line));
@@ -122,6 +117,7 @@ function queryCOPAC($cleaned_searchterm){
 		}
 		$resultset[$entry['title']] = $entry;
 	}
+	logfile(print_r($resultset, true), 'cyan');
 	return $resultset;
 }
 function queryGoogle($cleaned_searchterm){  
@@ -148,7 +144,76 @@ function queryGoogle($cleaned_searchterm){
 	}
 	return $resultset;
 }
-// START SUMMON FUNCTIONS
+// START NEWER SUMMON FUNCTIONS (TAKEN FROM TEST.PHP)
+function url_tools__request($url, $timeout=10, $headers=array()) {
+  /* Returns results of calling a given $url with a $timeout and optional $headers. */
+   
+  // make cURL request; return results.
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //suppress output.
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+  if(!$ch_exec = curl_exec($ch)){
+	  logfile("CURL ERROR: ". curl_error($ch), "CYAN");
+  }
+  curl_close($ch);
+  return $ch_exec;
+}
+ 
+function getSummonXML($query, $offset=0, $limit=10, $sort=False, $doctype="xml") {
+  /* Returns response in $doctype format (xml|json) from Summon 2.0 API for a $query.
+   
+    - Results start at $offset for a total of $limit results.
+    - Results are sorted by relevance ($sort = False) or date-descending ($sort = True).
+    - Code based on Python code here: https://gist.github.com/lawlesst/1070641
+    - See also: http://blog.humaneguitarist.org/2014/09/04/getting-started-with-the-summon-api-and-python/
+  */
+   
+  // set API credentials.
+ 
+    $api_id = "wit";
+    $api_key = "5D8LNr40Hkg0a52QA42326TCmD2ubyvX";
+     
+  // set API host and path.
+  $host = "api.summon.serialssolutions.com";
+  $path = "/2.0.0/search";
+   
+  // create query string.
+  $query = "s.q=" . urlencode($query) . "&s.pn=$offset&s.ps=$limit&s.ho=true";
+   
+  // set sort to date-descending if needed.
+  if ($sort != False) {
+    $query = $query . "&s.sort=PublicationDate:desc";
+  }
+   
+  // sort and encode $query.
+  $query_sorted = explode("&", $query);
+  asort($query_sorted); 
+  $query_sorted = implode("&", $query_sorted);
+  $query_encoded = urldecode($query_sorted);
+   
+  // create request headers.
+  $accept = "application/$doctype";
+  $date = gmstrftime("%a, %d %b %Y %H:%M:%S GMT", time());
+  $id_string = implode("\n", array($accept, $date, $host, $path, $query_encoded, ""));
+  $digest = base64_encode(hash_hmac("sha1", utf8_encode($id_string), $api_key, True));
+  $authorization = "Summon " . $api_id . ";" . $digest;
+  $headers = array("Host:$host", "Accept:$accept", "x-summon-date:$date", "Authorization:$authorization");
+   
+  // call API; return response.
+  $url = "http://$host$path?$query";
+  logfile("URL: $url ", "red");
+  $response = $this->url_tools__request($url, $timeout=10, $headers=$headers);
+  #logfile("res: $response ", "magenta");
+  return $response;
+}
+
+# echo summon_tools__request("Good%20to%20Great", $offset=0, $limit=10, $sort=False, $doctype="xml");
+
+// END NEWER SUMMON FUNCTIONS (TAKEN FROM TEST.PHP)#
+
+// START OLDER SUMMON FUNCTIONS
 
 function build_summon_request($pageNumber, $searchterms) {
 
@@ -233,32 +298,34 @@ function build_summon_request($pageNumber, $searchterms) {
 // return a string of all the data
 function request_response($fp, $summon_header, $not_chunked) {
 
-
+	logfile("fp: \t" . $fp, "CYAN");
+	logfile("SUMMON HEADER: " . $summon_header, "YELLOW");
+	logfile("not_chunked: \t" . $not_chunked, "CYAN");
+	$result = "";
     if (!$fp) {
 
        $result = "$errstr ($errno)";
        return $result;
 
     } 
-
     stream_set_timeout($fp, 5);
 
     // send the request
     fwrite($fp,$summon_header);
 
-	if ($not_chunked) {
-		
+	if ($not_chunked) {		
+	
+		logfile("NOT CHUNKED", "RED");
 		$result = stream_get_contents($fp);   
-		return $result;
-	
+		return $result;	
 	}
-	else {
-	
+	else {	
+		logfile("--- CHUNKED", "RED");
 		// get the chunked response
-
 		// start by getting the header, looking for \r\n
 		while (strlen($line = stream_get_line($fp,2048,"\r\n")) != 0){
-		   @$result .= $line;
+		   #@$result .= $line;
+		   $result .= $line;
 		}
 	 
 		// now read in the size of the first chunk
@@ -436,8 +503,10 @@ function insert_search_box() {
 	
 }
 
+
 function querySummon($terms){
-		
+		$result = $this->getSummonXML($terms);
+/*
 		$summon_header = $this->build_summon_request(1, $terms);
 		$result = "";	   
 		// connect to the Summon API and send the request
@@ -447,11 +516,14 @@ function querySummon($terms){
 		#echo "<PRE>String length: " . strlen($result) . "</PRE>";
 		#echo "<PRE>Response: " . $result . "</PRE>";
 		// split off the header
-		$xml_file = $this->remove_http_header($result);
+*/
+
+		//$xml_file = $this->remove_http_header($result);
 		// echo "<PRE>String length without header: " . strlen($xml_file) . "</PRE>";
 		// load up the file into an XML DOM object
 		$doc = new DOMDocument();
-		$doc->loadXML($xml_file);   
+		//$doc->loadXML($xml_file);   
+		$doc->loadXML($result);   
 		// print out the entire XML
 		//if ($debug && 0) {
 		  // echo $doc->saveXML(); 
@@ -459,11 +531,11 @@ function querySummon($terms){
 		// get the search results in a nice hash
 		$search_results = $this->parse_search_results($doc);
 		$count = 0;
-		//print_r($search_results);
+		#logfile(print_r($search_results, true), "CYAN");
 		$resultset = array();
 		foreach($search_results AS $book){
 			if(isset($book['link'])){
-				$entry = array('author'=>'','title'=>'','publocation'=>'','publisher'=>'','pubdate'=>'','source'=>'','isbn'=>'','idwitbooks'=>'', 'url'=>'');
+				$entry = array('author'=>'','title'=>'','publocation'=>'','publisher'=>'','pubdate'=>'','source'=>'','isbn'=>'','idwitbooks'=>'', 'url'=>'', 'type'=>'');
 				
 				#$querystring = "SELECT idwitbooks, title, author, isbn, publocation, publisher, pubdate, url, type from witbooks ";
 				//print_r($book);
@@ -474,14 +546,23 @@ function querySummon($terms){
 				@$entry['pubdate'] = $book['PublicationYear'];
 				@$entry['isbn'] = $book['ISBN'];
 				@$entry['isbn'] = $book['ISSN'];
+				@$entry['type'] = $book['ContentType'];
 				@$entry['source'] = $book['Source'];
 				@$entry['idwitbooks'] = $book['ExternalDocumentID'];
-				@$entry['url'] = $book['link'];
+				if(trim($book['SourceType']) == "Library Catalog"){
+					@$entry['url'] = "http://witcat.wit.ie/record=" . substr($book['ExternalDocumentID'],0,8);
+					logfile("ID FOR ". $book['SourceType']. "\t " . $count."\t" . $book['Title'] ." IS: ".$book['ExternalDocumentID'], 'BLUE', __FUNCTION__, __FILE__);
+					logfile("ID FOR ". $book['SourceType']. "\t " . $count."\t" . $book['Title'] ." IS: ".$book['ExternalDocumentID'], 'yellow', __FUNCTION__, __FILE__);
+				}else{
+					@$entry['url'] = $book['URI'];
+					logfile("ID FOR ". $book['SourceType']. "\t " . $count."\t" . $book['Title'] ." IS: no id", 'GREEN', __FUNCTION__, __FILE__);
+				}
+				logfile("TITLE: " . $book['Title'], "GREEN");
 				array_push($resultset, $entry);
-				$count++;
 			}
+			$count++;
 		} 
-	#print "</textarea>"; 
+	logfile($result, 'magenta');
 	//show_array($resultset);
 	return $resultset;
 }
@@ -632,6 +713,7 @@ function show($source, $ti) {
 		}
 		$rowct = 0;
 		foreach ($resultset as $row){
+			
 			#echo "<pre>"; print_r($row); echo "</pre><hr/><br/>\n";
 			if($rowct == 9){
 				$rowct = 0;
@@ -658,17 +740,19 @@ function show($source, $ti) {
 				if(!isset($row['url'])){$row['url'] = '';}
 				//if(!isset($row['bcode3'])){$row['bcode3'] = '';}		
 				//logfile("\tv=>\t" . $row['title']); 
+				$typeicon = $this->generateTypeIcon($row['type'], $format='search_results');
+										
 				$returnedresultset[30-$matchcount . "#".$rowct."#" . $row['title']] =  array(
 					'recordID' => $row['idwitbooks'],
-					'highlighted_title' => "<span class=\"badge\" style=\"color: #990000; border: dashed 1px #990000; background-color: white;\">".$row['pubdate']."</span> ".$highlighted_title, 
+					'highlighted_title' => "$typeicon <span class=\"badge\" style=\"color: #990000; border: dashed 1px #990000; background-color: white;\">".$row['pubdate']."</span> ".$highlighted_title, 
 					'Title' => $row['title'],
 					'Author' => $row['author'],
 					'ISBN' => $row['isbn'],
 					'Publisher_Location' => $row['publocation'],
 					'Publisher' => $row['publisher'],
 					'Publication_Date' => $row['pubdate'],
-					'url' => $row['url']
-					//'type' => $row['type'],
+					'url' => $row['url'],
+					'type' => $row['type']
 					//'bcode3' => $row['bcode3']
 				);	
 			}
@@ -687,6 +771,41 @@ function show($source, $ti) {
 	//print_r($returnedresultset);
 	return $array;
 }
+	function generateTypeIcon($type, $format="search_results"){
+		$rowtypes = array(
+			'book' => 					array('#003399', 'book'),
+			'book review' =>			array('#999eee', 'book'), 
+			'ebook' => 					array('#6666ff', 'book'), 
+			'reference' => 				array('#3664bb', 'book'), 
+			'journal article' => 		array('#003399', 'newspaper-o'), 
+			'newspaper article' => 		array('#0066ff', 'newspaper-o'),
+			'ejournal' =>		 		array('#6666ff', 'newspaper-o'),
+			'web' => 					array('#6666ff', 'globe'), 
+			'web resource' => 			array('#3664bb', 'globe'), 
+			'archival material' => 		array('#3664bb', 'archive'), 
+			'report' => 				array('#587094', 'file-text'),
+			'government publication' => array('#587094', 'file-text'),
+			'audio' => 					array('#4c6980', 'headphones'), 
+			'conference proceeding' =>	array('#01296e', 'group'),
+			'video' => 					array('#01296e', 'film'),
+			'video recording' =>		array('#01296e', 'film')
+			
+		);
+		$formats = array(
+			'search_results' => array('color: white; margin-right: 10px; cursor: help; float: left; border: solid 1px black; padding: 0px;'),
+			'readinglist_html' => array('color: white; margin-right: 10px; cursor: help; float: left; border: solid 1px black; padding: 0px;')
+			);
+		$type = strtolower($type);
+		if(isset($type)){
+			logfile("ROW_TYPE: start" . $type."end", 'yellow');
+		}
+		if(!isset($rowtypes[$type])){						
+			$typeicon = "<span class=\"listAdminButtons removeFromMobileView btn btn-default\" title=\"".$type."\" onclick=\"return false;\" style=\"".$formats[$format][0]." background-color: yellow \"><i class=\"fa fa-info-circle\"></i></span>";
+		}else{
+			$typeicon = "<span class=\"listAdminButtons removeFromMobileView btn btn-default\" title=\"".$type."\" onclick=\"return false;\" style=\"".$formats[$format][0]." background-color: ".$rowtypes[$type][0]." \"><i class=\"fa fa-".$rowtypes[$type][1]."\"></i></span>";
+		}
+		return $typeicon;
+	}
+} 
 
-}
 ?>

@@ -269,20 +269,20 @@ This is necessary because it makes the recording of the audit trail less complex
 			$querystring .= 'and b.date_updated IS NOT NULL ';
 		}
 		$querystring .= 'order by bm.sequence asc;';
-		#logfile("querystring: " . $querystring);
 		
 		if($module_id != 'NO_DATA'){
 			$query = $this->db->query($querystring);
 			$query->result_array();
 			$results = Array();
 			foreach ($query->result_array() as $tuple){
-				array_push($results, $tuple);
+				array_push($results, $tuple); 
 			}
 	
-			$data['module'] = $this->getModuletID($module_id);
-			$data['results'] = $results;
-			$data['action'] = $action;
-			$data['module'] = $module_id;
+			$data['module'] = $this->getModuletID($module_id); 
+			$data['results'] = $results; 
+			$data['action'] = $action; 
+			$data['module'] = $module_id; 
+			//logfile("BOOKS FOR MODULE: " . print_r($data, true));
 			return $data;
 		}else{
 			return array('module' => $this->getModuletID($module_id), 'action' => $action);
@@ -638,11 +638,14 @@ This is necessary because it makes the recording of the audit trail less complex
 				'libid' => addslashes($this->input->post('book_libraryid')), 
 				'date_updated' => date("Y-m-d H:i:s")
 			);				
+			
+			#logfile("\n url ....\t\t" . $this->input->post('url'), 'model', __FUNCTION__, __FILE__);
+			#logfile("\n urlslashes\t" . addslashes($this->input->post('url')), 'model', __FUNCTION__, __FILE__);
 			// do an update
 			$str = $this->db->update_string('books', $vars, $where); 	
 			logfile("\n\nWe are updating\n\n\t$str\n\n", 'model', __FUNCTION__);
 			#foreach ( $_POST as $ind=>$val ){	
-			#	#logfile("\t" .$ind . "\033[01;37m " . $val, 'model', __FUNCTION__, __FILE__);
+			#	logfile("\t" .$ind . "\033[01;37m " . $val, 'model', __FUNCTION__, __FILE__);
 			#}
 			$bid2 = $this->isLibraryID($libid, $bid);
 
@@ -711,7 +714,10 @@ This is necessary because it makes the recording of the audit trail less complex
 					$str .= "'".$this->session->userdata('user')."', ";
 					$str .= $this->input->post('type').", "; 
 					$str .= "'".date("Y-m-d H:i:s")."', ";
-					$str .= "'".addslashes($this->input->post('url'))."');"; 
+					$str .= "'".$this->input->post('url')."');"; 
+					
+			logfile("\n url ....\t\t" . $this->input->post('url'), 'model', __FUNCTION__, __FILE__);
+			logfile("\n urlslashes\t" . addslashes($this->input->post('url')), 'model', __FUNCTION__, __FILE__);
 				
 					//$str .= "'".$this->input->post('book_mattype')."', "; 
 					//$str .= "'".$this->input->post('book_bcode3')."');"; 

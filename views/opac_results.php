@@ -53,6 +53,7 @@ if($aCount == 0){ $resultsHeading = $messageNoResult;}
             <div class="panel-body">
               <div><strong>Title: </strong><span class="opac_resultset_detail_title"><?php echo $d['Title']; ?></span></div>
               <div><strong>Record: </strong><span class="opac_resultset_detail_recordid"> <?php print("<a href=\"http://witcat.wit.ie/record=".substr($d['recordID'], 0,8)."~S0\" target=\"_blank\">".$d['recordID']."</a>"); ?> </span></div>
+              <div><strong>Type: </strong><span class="opac_resultset_detail_type"><?php echo $d['type']; ?></span></div>
               <div><strong>Author: </strong><span class="opac_resultset_detail_author"><?php echo $d['Author']; ?></span></div>
               <div><strong>Pub: </strong><span class="opac_resultset_detail_publoc"><?php echo $d['Publisher_Location']; ?></span></div>
               <div><strong>Pub: </strong><span class="opac_resultset_detail_publisher"><?php echo $d['Publisher']; ?></span></div>

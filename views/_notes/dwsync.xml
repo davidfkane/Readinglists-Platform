@@ -16,14 +16,14 @@
 <file name="edit_book.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084520000000" remote="130396084520000000" Dst="2" />
 <file name="general_login_form.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084520000000" remote="130396084520000000" Dst="2" />
 <file name="copac.xml" server="10.5.0.114//var/www/readinglists/application/" local="130396084440000000" remote="130396084440000000" Dst="2" />
-<file name="readinglist_html.php" server="10.5.0.114//var/www/readinglists/application/" local="130396293450000000" remote="130396293450000000" Dst="2" />
+<file name="readinglist_html.php" server="10.5.0.114//var/www/readinglists/application/" local="130924134273606813" remote="130924133650000000" Dst="1" />
 <file name="index.html" server="10.5.0.114//var/www/readinglists/application/" local="130396084520000000" remote="130396084520000000" Dst="2" />
 <file name="myLoginForm.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084520000000" remote="130396084520000000" Dst="2" />
 <file name="new_book.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084520000000" remote="130396084520000000" Dst="2" />
 <file name="default_message.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084460000000" remote="130396084460000000" Dst="2" />
 <file name="bookmarkletcss.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084440000000" remote="130396084440000000" Dst="2" />
 <file name="readinglist_html-backup.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084530000000" remote="130396084530000000" Dst="2" />
-<file name="opac_results.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084520000000" remote="130396084520000000" Dst="2" />
+<file name="opac_results.php" server="10.5.0.114//var/www/readinglists/application/" local="130924059906978355" remote="130924059280000000" Dst="1" />
 <file name="welcome_message.php" server="10.5.0.114//var/www/readinglists/application/" local="130446432950000000" remote="130446432950000000" Dst="2" />
 <file name="modules_select.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084520000000" remote="130396084520000000" Dst="2" />
 <file name="readinglist_endnote.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084530000000" remote="130396084530000000" Dst="2" />
@@ -32,10 +32,10 @@
 <file name="readinglist_website.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084530000000" remote="130396084530000000" Dst="2" />
 <file name="bookmarklet.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084440000000" remote="130396084440000000" Dst="2" />
 <file name="overview.php" server="10.5.0.114//var/www/readinglists/application/" local="130730464330000000" remote="130730464330000000" Dst="2" />
-<file name="default_form_multidropdown.php" server="10.5.0.114//var/www/readinglists/application/" local="130396278770000000" remote="130396278770000000" Dst="2" />
+<file name="default_form_multidropdown.php" server="10.5.0.114//var/www/readinglists/application/" local="130924059523098355" remote="130924058900000000" Dst="1" />
 <file name="readinglist_modcat.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084530000000" remote="130396084530000000" Dst="2" />
 <file name="report.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084530000000" remote="130396084530000000" Dst="2" />
 <file name="code_review.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084440000000" remote="130396084440000000" Dst="2" />
-<file name="readinglist_moodle.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084530000000" remote="130396084530000000" Dst="2" />
+<file name="readinglist_moodle.php" server="10.5.0.114//var/www/readinglists/application/" local="130924206418684426" remote="130924205990000000" Dst="1" />
 <file name="tablereport.php" server="10.5.0.114//var/www/readinglists/application/" local="130396084540000000" remote="130396084540000000" Dst="2" />
 </dwsync>

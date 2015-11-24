@@ -1,6 +1,7 @@
 <?php
 header("Content-type: text/html");
 $serialized = base64_encode(serialize($serialized));
+$imagepath = "https://library.wit.ie/mod/readinglist/images/";
 if($module_title != 'NO_DATA'){
 ?>
 <div class="readinglist_html">
@@ -103,32 +104,26 @@ foreach ($results['results'] as $row){
 	
 	$title = "<strong>" . stripslashes(stripslashes($row['Title'])) . "</strong>";
 	$ischecked = "";
-	$displaycount++;	
-    if($row['libid'] == ''){  // if it is not in the library catalogue
-		if($row['type'] == 1){  // Status
-			if($row['date_updated'] != ''){  // Status
-				$titlestring = $title . "<span style=\"text-size: small; color: red; font-style: italic; \"> (Not In library)</span>\n";
-			}else{
-				$titlestring = $title . "<span style=\"text-size: small; color: orange; font-style: italic; \"> (Please check with Library to see if this is on our shelves.)</span>\n";
-				if($username == 'STUDENT'){
-					$ischecked = " display: none; visibility: hidden; ";  // HIDE FROM STUDENTS
-					$displaycount--;
-				}
+	$displaycount++;
+	if($row['type'] == 1){  // Status
+		if($row['date_updated'] != ''){  // Status
+			$titlestring = $title . "<span style=\"text-size: small; color: red; font-style: italic; \"> (Not In library)</span>\n";
+		}else{
+			$titlestring = $title . "<span style=\"text-size: small; color: orange; font-style: italic; \"> (Please check with Library to see if this is on our shelves.)</span>\n";
+			if($username == 'STUDENT'){
+				$ischecked = " display: none; visibility: hidden; ";  // HIDE FROM STUDENTS
+				$displaycount--;
 			}
 		}
-		$titlestring = $title;
-    }else{ // if it is in the library catalogue, then make the title a link.
-			
-		$statsdata['url'] = base64_encode($libraryroot . substr($row['libid'], 0,8) . "~S0");		
-		$statsdata['catalogue'] = 1; // true or false
-	    $titlestring = "<a target=\"_blank\" href=\"".$this->config->item('domain').$this->config->item('path')."tracker/resource/" . base64_encode(serialize($statsdata))."\">" . $title . "</a>";
-    }
-	
+	}
+	$titlestring = $title;
+#	
 	// START RENDERING READINGLIST ITEM
     $rlist_items .= "<div style=\"".$ischecked."font-family: sans-serif; padding: 1px; border-bottom: dashed 1px gray; margin-bottom: 10px;\">";
-	$rlist_items .= "<span><img align=\"left\" style=\" position: relative; left: 0px; top: 0px; \" src=\"https://library.wit.ie/mod/readinglist/images/".$typeicon[$row['type'] - 1]."\" alt=\"".$row['type_name']."\" /></span>";  // show resource type icon.
+	$rlist_items .= "<span><img align=\"left\" style=\" position: relative; left: 0px; top: 0px; \" src=\"".$imagepath.$typeicon[$row['type'] - 1]."\" alt=\"".$row['type_name']."\" /></span>";  // show resource type icon.
 	$rlist_items .= "<img src=\"https://library.wit.ie/mod/readinglist/images/required_".$row['essential'].".gif\" align=\"left\" alt=\"Essential Reading\" style=\"margin-right: 4px;\"/> ";		
 	$rlist_items .=  $titlestring;	
+	logfile("TITLESTRING: $titlestring", 'green');
 	$rlist_items .= "<br/><span style=\"font-style: italic\">&nbsp;&nbsp;&nbsp;" . stripslashes($row['Author']) ." :: ". $row['Year'] ." :: ". stripslashes($row['Publisher']) . "</span><br/>";
     if($row['url'] != ''){  // if the item has a URL, then we display that..
 			$statsdata['url'] = base64_encode($row['url']);
